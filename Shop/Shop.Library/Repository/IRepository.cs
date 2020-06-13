@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Shop.Library.Model;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Shop.Library.Store
+namespace Shop.Library.Repository
 {
     /*
       This interface represents abstraction for 
       interacting with multiple kinds of data storage
       using basic CRUD operations
      */
-    public interface IStore
+    public interface IRepository
     {
         // Load routine can have a filter to get
         // subset of data we need
@@ -17,5 +18,7 @@ namespace Shop.Library.Store
         Status Insert<T>(T obj) where T : class, new();
         Status Update<T>(T obj) where T : class, new();
         Status Delete<T>(T obj) where T : class, new();
+
+        RepositoryType Kind { get; }
     }
 }

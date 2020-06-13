@@ -1,17 +1,18 @@
-﻿using Shop.Library.Store;
+﻿using Shop.Library.Model;
+using Shop.Library.Repository;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Text;
 
-namespace Shop.Library.Store
+namespace Shop.Library.Repository
 {
     internal static class SqlCache
     {
-        static IDictionary<Type, ISqlStoreAdapter> _adapters = new Dictionary<Type, ISqlStoreAdapter>();
+        static IDictionary<Type, ISqlRepositoryAdapter> _adapters = new Dictionary<Type, ISqlRepositoryAdapter>();
         static IDictionary<string, string> _connParams = new Dictionary<string, string>();
 
-        internal static void RegisterAdapter<T>(ISqlStoreAdapter adapter)
+        internal static void RegisterAdapter<T>(ISqlRepositoryAdapter adapter)
         {
             if (_adapters.ContainsKey(typeof(T)))
                 throw new InvalidOperationException(
@@ -20,7 +21,7 @@ namespace Shop.Library.Store
             _adapters.Add(typeof(T), adapter);
         }
 
-        internal static ISqlStoreAdapter AdapterFor<T>()
+        internal static ISqlRepositoryAdapter AdapterFor<T>()
             where T : class, new()
         {
             if (!_adapters.ContainsKey(typeof(T)))
@@ -38,11 +39,16 @@ namespace Shop.Library.Store
                 k = ConfigurationManager.ConnectionStrings[i].Name;
                 v = ConfigurationManager.ConnectionStrings[i].ConnectionString;
 
-                if (_connParams.ContainsKey(k))
-                    _connParams[k] = v;
-                else
-                    _connParams.Add(k, v);
+                AddConnParam(k, v);
             }
+        }
+
+        internal static void AddConnParam(string k, string v)
+        {
+            if (_connParams.ContainsKey(k))
+                _connParams[k] = v;
+            else
+                _connParams.Add(k, v);
         }
 
         internal static IDictionary<string, string> ConnParams

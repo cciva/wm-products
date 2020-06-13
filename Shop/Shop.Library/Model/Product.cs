@@ -17,4 +17,9 @@ namespace Shop.Library.Model
         public string Supplier { get; set; }
         public decimal Price { get; set; }
     }
+
+    public class ProductCollection : List<Product>
+    {
+
+    }
 }

@@ -1,0 +1,19 @@
+﻿[
+  {
+    "Id": "pr6",
+    "Description": "Keyboard",
+    "CategoryId": 1,
+    "Make": "Logitech",
+    "Supplier": "USA",
+    "Price": 35.55
+  },
+  {
+    "Id": "pr7",
+    "Description": "Wireless Mouse",
+    "CategoryId": 1,
+    "Make": "Logitech",
+    "Supplier": "USA",
+    "Price": 30.99
+  }
+]
+

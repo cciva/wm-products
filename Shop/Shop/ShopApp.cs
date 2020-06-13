@@ -1,16 +1,18 @@
 ﻿using Autofac;
 using Autofac.Integration.WebApi;
-using Products.Resources;
 using Shop.Library;
 using Shop.Library.Model;
 using Shop.Library.Services;
-using Shop.Library.Store;
+using Shop.Library.Repository;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
+using System.Web.Hosting;
+using System.IO;
 
 namespace Products.Startup
 {
@@ -66,14 +68,35 @@ namespace Products.Startup
 
         private void RegisterAll(ContainerBuilder builder)
         {
-            // repository
-            SqlConfig.Initialize();
-            SqlConfig.UseModel<Product>(new DbProducts());
+            RepositoryConfig conf = null;
+            object temp = null;
 
-            builder.RegisterType<SqlServerStore>()
-                .As<IStore>()
-                .WithParameter("connectionId", Strings.ShopDb)
-                .SingleInstance();
+            // storage
+            // Configurable switch between db and file source of products
+            if ((temp = ConfigurationManager.GetSection("repoConfig")) != null)
+            {
+                conf = temp as RepositoryConfig;
+                if (conf.Type == RepositoryType.SqlDb)
+                {
+                    SqlConfig.Initialize(conf);
+                    SqlConfig.UseModel<Product>(new DbProducts());
+
+                    builder.Register((c, p) => new SqlServerRepository(conf.Id))
+                        .As<IRepository>();
+                }
+                else
+                {
+                    string filepath = HostingEnvironment.MapPath(Path.Combine("~/App_Data/files", conf.Parameters));
+                    builder.Register((c, p) => new FileRepository(filepath))
+                        .As<IRepository>();
+                }
+            }
+            else
+            {
+                builder.Register((c, p) =>
+                        new SqlServerRepository(p.Named<string>("connectionId")))
+                    .As<IRepository>();
+            }
         }
 
         public IAppServices Services

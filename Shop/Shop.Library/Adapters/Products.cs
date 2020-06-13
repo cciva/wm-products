@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Shop.Library;
 using Shop.Library.Model;
-using Shop.Library.Store;
+using Shop.Library.Repository;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,7 +11,7 @@ using System.Web;
 
 namespace Shop.Library
 {
-    public class DbProducts : SqlStoreAdapter<Product>
+    public class DbProducts : SqlRepositoryAdapter<Product>
     {
         public DbProducts()
         {

@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace Shop.Library.Store
+namespace Shop.Library.Repository
 {
-    public interface ISqlStoreAdapter
+    public interface ISqlRepositoryAdapter
     {
         IEnumerable<object> Read(IDbConnection connection, object filter = null);
         Status Write(IDbConnection connection, object item, Operation op);
     }
 
-    public interface ISqlStoreAdapter<T> : ISqlStoreAdapter
+    public interface ISqlRepositoryAdapter<T> : ISqlRepositoryAdapter
         where T : class, new()
     {
         new IEnumerable<T> Read(IDbConnection connection, object filter = null);

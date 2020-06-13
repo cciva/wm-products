@@ -1,7 +1,7 @@
 ﻿using Products.Resources;
 using Products.Startup;
 using Shop.Library.Model;
-using Shop.Library.Store;
+using Shop.Library.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +14,9 @@ namespace Products.Controllers
     {
         public ActionResult Browse()
         {
-            IStore store = ShopApp.Instance.Services.GetByParam<IStore>("connectionId", Strings.ShopDb);
-            IEnumerable<Product> products = store.Load<Product>();
+            //IStore store = ShopApp.Instance.Services.GetByParam<IStore>("connectionId", Strings.ShopDb);
+            IRepository repo = ShopApp.Instance.Services.Get<IRepository>();
+            IEnumerable<Product> products = repo.Load<Product>();
             return View(products);
         }
     }

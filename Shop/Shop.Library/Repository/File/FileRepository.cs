@@ -1,17 +1,18 @@
 ﻿using Newtonsoft.Json;
+using Shop.Library.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Shop.Library.Store
+namespace Shop.Library.Repository
 {
-    public class FileStore : IStore
+    public class FileRepository : IRepository
     {
         string _target = string.Empty;
 
-        public FileStore(string file)
+        public FileRepository(string file)
         {
             _target = file;
         }
@@ -40,7 +41,7 @@ namespace Shop.Library.Store
             try
             {
                 string content = File.ReadAllText(_target);
-                collection = JsonConvert.DeserializeObject<IEnumerable<T>>(content);
+                collection = JsonConvert.DeserializeObject<List<T>>(content);
             }
             catch (Exception err)
             {
@@ -57,6 +58,11 @@ namespace Shop.Library.Store
         public Status Update<T>(T obj) where T : class, new()
         {
             throw new NotImplementedException();
+        }
+
+        public RepositoryType Kind
+        {
+            get { return RepositoryType.JsonFile; }
         }
     }
 }

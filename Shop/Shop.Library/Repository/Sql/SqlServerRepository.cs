@@ -1,17 +1,18 @@
-﻿using System;
+﻿using Shop.Library.Model;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 
-namespace Shop.Library.Store
+namespace Shop.Library.Repository
 {
-    public class SqlServerStore : IStore
+    public class SqlServerRepository : IRepository
     {
         string _connId = string.Empty;
         string _conn = string.Empty;
 
-        public SqlServerStore(string connectionId)
+        public SqlServerRepository(string connectionId)
         {
             _connId = connectionId;
 
@@ -22,6 +23,11 @@ namespace Shop.Library.Store
             _conn = SqlCache.ConnParams[_connId];
         }
 
+        //public SqlServerStore(StoreConfig conf)
+        //{
+        //    _conn = conf.Parameters;
+        //}
+
         public IEnumerable<T> Load<T>(object filter = null) where T : class, new()
         {
             SqlConnection connection = new SqlConnection(_conn);
@@ -29,13 +35,13 @@ namespace Shop.Library.Store
 
             try
             {
-                ISqlStoreAdapter adapter = SqlCache.AdapterFor<T>();
+                ISqlRepositoryAdapter adapter = SqlCache.AdapterFor<T>();
                 if (adapter == null)
                     throw new InvalidOperationException(
                         string.Format("unable to use model '{0}' with sql store - not registered", typeof(T)));
 
                 connection.Open();
-                collection = (adapter as ISqlStoreAdapter<T>).Read(connection);
+                collection = (adapter as ISqlRepositoryAdapter<T>).Read(connection);
             }
             catch (Exception err)
             {
@@ -71,7 +77,7 @@ namespace Shop.Library.Store
 
             try
             {
-                ISqlStoreAdapter adapter = SqlCache.AdapterFor<T>();
+                ISqlRepositoryAdapter adapter = SqlCache.AdapterFor<T>();
                 if (adapter == null)
                     throw new InvalidOperationException(
                         string.Format("unable to use model '{0}' with sql store - not registered", typeof(T)));
@@ -89,6 +95,11 @@ namespace Shop.Library.Store
             }
 
             return status;
+        }
+
+        public RepositoryType Kind
+        {
+            get { return RepositoryType.SqlDb; }
         }
     }
 }
