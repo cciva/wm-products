@@ -4,11 +4,73 @@
     ViewBag.Title = "All products";
 }
 
-<h2>Browse</h2>
+<h2>All prodcuts</h2>
 
-<p>
-    @Html.ActionLink("Add new", "Create")
-</p>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        alert("test");
+        console.log($(".btn"));
+        $(".btn-danger").bind("click", function (event) {
+            event.preventDefault();
+
+            var url = '@Url.Action("TestDelete", "Products")';
+            if (!confirm('Delete this record?')) {
+                return;
+            }
+
+            var entry = $(this);
+            $.post(url, { id: id })
+                .done(function (response) {
+                    if (response.Success) {
+                        entry.closest('tr').remove();
+                    } else {
+                        alert("error while trying to delete record");
+                    }
+                }).fail(function (response) {
+                    alert("error while trying to delete record");
+                });            
+        });
+    });
+      @*$(document).ready(function () {
+            $("#LogOnForm").submit(function (event) {
+                event.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Content("~/account/authenticate")',
+                    data: $("#LogOnForm").serialize(),
+                    success: function (data) {
+                       if (data.Status) {
+                            //Logged in succesfully
+                         } else {
+                            //Login failed
+                         }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
+      });*@
+    @*function d(id) {
+        var url = '@Url.Action("TestDelete", "Products")';
+        if (!confirm('Delete this record?')) {
+            return;
+        }
+        var item = $(this);
+        $.post(url, { id: id })
+            .done(function (response) {
+                if (response.Success) {
+                    item.closest('tr').remove();
+                } else {
+                    alert("error while trying to delete record");
+                }
+            }).fail(function (response) {
+                alert("error while trying to delete record");
+            });
+    }*@
+</script>
+
 <table class="table">
     <tr>
         <th>
@@ -47,11 +109,21 @@
             @Html.DisplayFor(modelItem => item.Price)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+            @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+            <span />
+            @*@Html.ActionLink("Delete", "Delete", new { id=item.Id }, new { onclick = "return confirm('Really delete?');" })*@
+            @*<button class="btn btn-xs btn-danger delete-product" onclick="d(@item.Id)">
+            <span class="glyphicon glyphicon-trash"></span>
+        </button>*@
+            <button id="delete-product" class="btn btn-xs btn-danger">
+                <span class="glyphicon glyphicon-trash"></span>
+            </button>
         </td>
     </tr>
 }
 
 </table>
+
+<p>
+    @Html.ActionLink("Add new", "New", "Products")
+</p>

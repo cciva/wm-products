@@ -15,31 +15,6 @@ namespace Shop.Library
     {
         public DbProducts()
         {
-            //Dictionary<string, string> map = new Dictionary<string, string>
-            //{
-            //    /*    Column => Property    */
-            //    { "Id",             "Id"          },
-            //    { "Description",    "Description" },
-            //    { "CategoryId",     "CategoryId"  },
-            //    { "Make",           "Make"        },
-            //    { "Supplier",       "Supplier"    },
-            //    { "Price",          "Price"       }
-            //};
-
-            //var mapper = new Func<Type, string, PropertyInfo>((type, col) =>
-            //{
-            //    if (map.ContainsKey(col))
-            //        return type.GetProperty(map[col]);
-            //    else
-            //        return type.GetProperty(col);
-            //});
-
-            //// Create customer mapper for User object
-            //var prodmap = new CustomPropertyTypeMap(
-            //    typeof(Product),
-            //    (type, col) => mapper(type, col));
-
-            //SqlMapper.SetTypeMap(typeof(Product), prodmap);
         }
 
         protected override IEnumerable<Product> ReadData(
@@ -55,26 +30,38 @@ namespace Shop.Library
             Operation op)
         {
             int result = 0;
+            string cmd = string.Empty;
             DynamicParameters parameters = new DynamicParameters();
 
             switch (op)
             {
                 case Operation.Insert:
-                    parameters.Add("@id", item.Id, DbType.String);
                     parameters.Add("@description", item.Description, DbType.String);
                     parameters.Add("@category", item.CategoryId, DbType.Int32);
                     parameters.Add("@make", item.Make, DbType.String);
                     parameters.Add("@supplier", item.Supplier, DbType.String);
                     parameters.Add("@price", item.Price, DbType.Decimal);
+                    cmd = "[dbo].[sp_insert_product]";
+                    break;
+                case Operation.Delete:
+                    parameters.Add("@id", item.Id, DbType.Int32);
+                    cmd = "[dbo].[sp_delete_product]";
                     break;
                 case Operation.Update:
+                    parameters.Add("@id", item.Id, DbType.Int32);
+                    parameters.Add("@description", item.Description, DbType.String);
+                    parameters.Add("@category", item.CategoryId, DbType.Int32);
+                    parameters.Add("@make", item.Make, DbType.String);
+                    parameters.Add("@supplier", item.Supplier, DbType.String);
+                    parameters.Add("@price", item.Price, DbType.Decimal);
+                    cmd = "[dbo].[sp_update_product]";
                     break;
             }
 
-            result = connection.Execute("[dbo].[sp_insert_product]", parameters, null, null, CommandType.StoredProcedure);
+            result = connection.Execute(cmd, parameters, null, null, CommandType.StoredProcedure);
 
             return (result == 0) 
-                ? new Status(new Exception("Unable to insert data")) 
+                ? new Status(new Exception(string.Format("unable to execute {0}", cmd))) 
                 : Status.Ok;
         }
     }
