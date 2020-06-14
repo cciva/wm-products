@@ -14,7 +14,7 @@ using System.Web.Http;
 using System.Web.Hosting;
 using System.IO;
 
-namespace Products.Startup
+namespace Shop
 {
     public class ShopApp
     {
@@ -80,6 +80,7 @@ namespace Products.Startup
                 {
                     SqlConfig.Initialize(conf);
                     SqlConfig.UseModel<Product>(new DbProducts());
+                    SqlConfig.UseModel<Category>(new DbCategories());
 
                     builder.Register((c, p) => new SqlServerRepository(conf.Id))
                         .As<IRepository>();

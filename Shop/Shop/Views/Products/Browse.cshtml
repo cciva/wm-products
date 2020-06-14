@@ -5,30 +5,53 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $(".delete-product").bind("click", function (event) {
-            event.preventDefault();
-
-            var url = '@Url.Action("TestDelete", "Products")';
+        $(".delete-product").bind("click", function (e) {
+            e.preventDefault();
             var productId = $(this).attr("product-id");
             var elem = $(this);
 
-            if (!confirm('Delete this record?')) {
-                return;
-            }
+            $('#confirm').modal({
+                backdrop: 'static',
+                keyboard: false
+            }).on('click', '#delete', function (e) {
+                deleteProduct(elem, productId);
+            });
 
-            $.post(url, { id: productId })
-                .done(function (response) {
-                    if (response.Success) {
-                        elem.closest('tr').remove();
-                    } else {
-                        alert("error while trying to delete record");
-                    }
-                }).fail(function (response) {
-                    alert("error while trying to delete record");
-                });
+            $("#cancel").on('click', function (e) {
+                e.preventDefault();
+                $('#confirm').modal.model('hide');
+            });
         });
     });
+
+    function deleteProduct(elem, id) {
+        var url = '@Url.Action("Delete", "Products")';
+        $.post(url, { id: id })
+            .done(function (response) {
+                if (response.Success) {
+                    elem.closest('tr').remove();
+                } else {
+                    alert("error while trying to delete record");
+                }
+            }).fail(function (response) {
+                alert("error while trying to delete record");
+            });
+    }
 </script>
+
+<div id="confirm" class="modal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p>Delete this record?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete</button>
+                <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <table class="table">
     <tr>
@@ -50,31 +73,32 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Description)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CategoryId)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Make)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Supplier)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Price)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id = item.Id })
-            <button class="btn btn-xs pull-right btn-danger delete-product" product-id="@item.Id">
-                <span class="glyphicon glyphicon-trash"></span>
-            </button>
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoryId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Make)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Supplier)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                <button class="btn btn-xs pull-right btn-danger delete-product" product-id="@item.Id">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+    }
 
 </table>
 

@@ -1,8 +1,8 @@
-﻿using Products.Resources;
-using Products.Startup;
+﻿using Shop;
 using Shop.Library;
 using Shop.Library.Model;
 using Shop.Library.Repository;
+using Shop.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,23 +24,24 @@ namespace Products.Controllers
 
         public ActionResult Browse()
         {
-            IEnumerable<Product> products = ProductsRepo.Load<Product>();
+            IEnumerable<Product> products = Repository.Load<Product>();
             return View(products);
         }
 
         public ActionResult New()
-        {   
-            return View(new Product());
+        {
+            IEnumerable<Category> cat = Repository.Load<Category>();
+            return View(new ProductViewModel(cat));
         }
 
         [HttpPost]
-        public ActionResult New(Product p)
+        public ActionResult New(ProductViewModel pv)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    Status status = ProductsRepo.Insert<Product>(p);
+                    Status status = Repository.Insert(pv.Product);
 
                     if (status.Success)
                     {
@@ -71,7 +72,7 @@ namespace Products.Controllers
                 return HttpNotFound();
             }
 
-            return View(product);
+            return View(new ProductViewModel(product, Repository.Load<Category>()));
         }
 
         [HttpPost]
@@ -80,19 +81,11 @@ namespace Products.Controllers
             try
             {
                 Product product = this.FindProduct(id);
-                //if(TryUpdateModel(product, 
-                //    new string[] 
-                //    { 
-                //        "Description", 
-                //        "CategoryId", 
-                //        "Make",
-                //        "Supplier",
-                //        "Price"
-                //    }))
-                //{
-                if(TryUpdateModel(product))
+                ProductViewModel vm = new ProductViewModel(product, Repository.Load<Category>());
+
+                if (TryUpdateModel(vm))
                 { 
-                    Status status = ProductsRepo.Update<Product>(product);
+                    Status status = Repository.Update(vm.Product);
 
                     if (status.Success)
                     {
@@ -108,23 +101,6 @@ namespace Products.Controllers
             }            
         }
 
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
-            Product product = this.FindProduct(id.Value);
-
-            if (product == null)
-            {
-                return HttpNotFound();
-            }
-
-            return View(product);
-        }
-
         [HttpPost, ActionName("Delete")]
         public ActionResult DoDelete(int id)
         {
@@ -134,31 +110,7 @@ namespace Products.Controllers
 
                 if (product != null)
                 {
-                    Status status = ProductsRepo.Delete(product);
-                    if (status.Success)
-                    {
-                        return RedirectToAction("Browse", "Products");
-                    }
-                }
-
-                return View();
-            }
-            catch (Exception err)
-            {
-                return View();
-            }
-        }
-
-        [HttpPost, ActionName("TestDelete")]
-        public JsonResult TestDelete(int id)
-        {
-            try
-            {
-                Product product = this.FindProduct(id);
-
-                if (product != null)
-                {
-                    Status status = ProductsRepo.Delete(product);
+                    Status status = Repository.Delete(product);
                     return Json(status);
                 }
 
@@ -172,10 +124,10 @@ namespace Products.Controllers
 
         private Product FindProduct(int id)
         {
-            return ProductsRepo.Load<Product>().FirstOrDefault(p => p.Id == id);
+            return Repository.Load<Product>().FirstOrDefault(p => p.Id == id);
         }
 
-        private IRepository ProductsRepo
+        private IRepository Repository
         {
             get { return _repo; }
         }

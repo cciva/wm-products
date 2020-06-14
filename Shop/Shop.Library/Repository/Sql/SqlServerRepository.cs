@@ -23,11 +23,6 @@ namespace Shop.Library.Repository
             _conn = SqlCache.ConnParams[_connId];
         }
 
-        //public SqlServerStore(StoreConfig conf)
-        //{
-        //    _conn = conf.Parameters;
-        //}
-
         public IEnumerable<T> Load<T>(object filter = null) where T : class, new()
         {
             SqlConnection connection = new SqlConnection(_conn);
