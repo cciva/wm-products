@@ -13,6 +13,7 @@ namespace Shop.Library.Model
         public string Make { get; set; }
         public string Supplier { get; set; }
         public decimal Price { get; set; }
+        public List<Category> Categories { get; set; }
     }
 
     public class ProductCollection : List<Product>

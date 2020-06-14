@@ -5,11 +5,6 @@ using System.Web;
 
 namespace Shop.Library
 {
-    public enum Category
-    {
-
-    }
-
     public enum Operation
     {
         Insert,
