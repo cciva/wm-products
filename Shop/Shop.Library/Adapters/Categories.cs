@@ -10,12 +10,16 @@ namespace Shop.Library
 {
     public class DbCategories : SqlRepositoryAdapter<Category>
     {
-        protected override IEnumerable<Category> ReadData(IDbConnection connection, object filter = null)
+        protected override IEnumerable<Category> ReadData(
+            IDbConnection connection, 
+            Predicate<Category> filter = null)
         {
             return connection.Query<Category>("dbo.sp_get_categories", commandType: CommandType.StoredProcedure);
         }
 
-        protected override Status WriteData(IDbConnection connection, Category item, Operation op)
+        protected override Status WriteData(
+            IDbConnection connection, Category item, 
+            Operation op, Predicate<Category> where = null)
         {
             throw new NotImplementedException();
         }

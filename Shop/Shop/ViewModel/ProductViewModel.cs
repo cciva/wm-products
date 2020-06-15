@@ -1,4 +1,5 @@
 ﻿using Shop.Library.Model;
+using Shop.Library.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,18 @@ namespace Shop.ViewModels
             Product = product;
             Categories.AddRange(categories);
             SelectedCategory = categories.FirstOrDefault(c => c.Id == product.CategoryId);
+
+            // UGLY HACK : since we can not auto-generate key when inserting record into json file
+            // we have to manually provide Product Id here
+            RepositoryConfig rconf = ShopApp.Instance.RepositoryConfig;
+            if (rconf != null && rconf.Type == RepositoryType.JsonFile)
+            {
+                DbResult res = ShopApp.Instance.Services
+                    .Get<IRepository>()
+                    .Execute<Product>(Library.Operation.Count);
+
+                Product.Id = res.Get<int>() + 1;
+            }
         }
 
         public Product Product { get; set; }

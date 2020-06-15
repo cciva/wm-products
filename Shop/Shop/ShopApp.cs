@@ -23,6 +23,8 @@ namespace Shop
         private IAppServices _services = null;
         static object _synclock = new object();
         static ShopApp _app = null;
+        // Configurable switch between db and file source for products
+        RepositoryConfig _repoConf = null;
 
         public static ShopApp Instance
         {
@@ -38,10 +40,17 @@ namespace Shop
             }
         }
 
-
         public void Initialize(HttpConfiguration config)
         {
             if (_initialized) return;
+
+            // Load repository configuration
+            object temp = null;
+
+            if ((temp = ConfigurationManager.GetSection("repoConfig")) != null)
+            {
+                _repoConf = temp as RepositoryConfig;
+            }
 
             var builder = new ContainerBuilder();
 
@@ -68,36 +77,63 @@ namespace Shop
 
         private void RegisterAll(ContainerBuilder builder)
         {
-            RepositoryConfig conf = null;
-            object temp = null;
-
-            // storage
-            // Configurable switch between db and file source of products
-            if ((temp = ConfigurationManager.GetSection("repoConfig")) != null)
-            {
-                conf = temp as RepositoryConfig;
-                if (conf.Type == RepositoryType.SqlDb)
-                {
-                    SqlConfig.Initialize(conf);
-                    SqlConfig.UseModel<Product>(new DbProducts());
-                    SqlConfig.UseModel<Category>(new DbCategories());
-
-                    builder.Register((c, p) => new SqlServerRepository(conf.Id))
-                        .As<IRepository>();
-                }
-                else
-                {
-                    string filepath = HostingEnvironment.MapPath(Path.Combine("~/App_Data/files", conf.Parameters));
-                    builder.Register((c, p) => new FileRepository(filepath))
-                        .As<IRepository>();
-                }
-            }
-            else
+            // repo configuration does not exist
+            // fallback to defauls sql server repository
+            if(_repoConf == null)
             {
                 builder.Register((c, p) =>
                         new SqlServerRepository(p.Named<string>("connectionId")))
                     .As<IRepository>();
             }
+            else
+            {
+                if (_repoConf.Type == RepositoryType.SqlDb)
+                {
+                    SqlConfig.Initialize(_repoConf);
+                    SqlConfig.UseModel<Product>(new DbProducts());
+                    SqlConfig.UseModel<Category>(new DbCategories());
+
+                    builder.Register((c, p) => new SqlServerRepository(_repoConf.Id))
+                        .As<IRepository>();
+                }
+                else
+                {
+                    FileConfig.UseModel<Product>(HostingEnvironment.MapPath(Path.Combine("~/App_Data/files", "products.json")));
+                    FileConfig.UseModel<Category>(HostingEnvironment.MapPath(Path.Combine("~/App_Data/files", "categories.json")));
+
+                    builder.RegisterType<FileRepository>()
+                        .As<IRepository>();
+                }
+            }
+            // storage
+            // Configurable switch between db and file source of products
+            //if ((temp = ConfigurationManager.GetSection("repoConfig")) != null)
+            //{
+            //    conf = temp as RepositoryConfig;
+            //    if (conf.Type == RepositoryType.SqlDb)
+            //    {
+            //        SqlConfig.Initialize(conf);
+            //        SqlConfig.UseModel<Product>(new DbProducts());
+            //        SqlConfig.UseModel<Category>(new DbCategories());
+
+            //        builder.Register((c, p) => new SqlServerRepository(conf.Id))
+            //            .As<IRepository>();
+            //    }
+            //    else
+            //    {
+            //        FileConfig.UseModel<Product>(HostingEnvironment.MapPath(Path.Combine("~/App_Data/files", "products.json")));
+            //        FileConfig.UseModel<Category>(HostingEnvironment.MapPath(Path.Combine("~/App_Data/files", "categories.json")));
+
+            //        builder.RegisterType<FileRepository>()
+            //            .As<IRepository>();
+            //    }
+            //}
+            //else
+            //{
+            //    builder.Register((c, p) =>
+            //            new SqlServerRepository(p.Named<string>("connectionId")))
+            //        .As<IRepository>();
+            //}
         }
 
         public IAppServices Services
@@ -105,6 +141,14 @@ namespace Shop
             get
             {
                 return _services;
+            }
+        }
+
+        public RepositoryConfig RepositoryConfig
+        {
+            get
+            {
+                return _repoConf;
             }
         }
     }

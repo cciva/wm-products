@@ -85,7 +85,7 @@ namespace Products.Controllers
 
                 if (TryUpdateModel(vm))
                 { 
-                    Status status = Repository.Update(vm.Product);
+                    Status status = Repository.Update<Product>(vm.Product, p => p.Id == id);
 
                     if (status.Success)
                     {
@@ -110,7 +110,7 @@ namespace Products.Controllers
 
                 if (product != null)
                 {
-                    Status status = Repository.Delete(product);
+                    Status status = Repository.Delete<Product>(product, p => p.Id == id);
                     return Json(status);
                 }
 

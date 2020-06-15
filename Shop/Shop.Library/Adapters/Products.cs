@@ -19,7 +19,7 @@ namespace Shop.Library
 
         protected override IEnumerable<Product> ReadData(
             IDbConnection connection, 
-            object filter = null)
+            Predicate<Product> filter = null)
         {
             return connection.Query<Product>("dbo.sp_get_products", commandType: CommandType.StoredProcedure);
         }
@@ -27,7 +27,8 @@ namespace Shop.Library
         protected override Status WriteData(
             IDbConnection connection, 
             Product item, 
-            Operation op)
+            Operation op,
+            Predicate<Product> where = null)
         {
             int result = 0;
             string cmd = string.Empty;
@@ -36,6 +37,7 @@ namespace Shop.Library
             switch (op)
             {
                 case Operation.Insert:
+                    //parameters.Add("@id", item.Id, DbType.Int32);
                     parameters.Add("@description", item.Description, DbType.String);
                     parameters.Add("@category", item.CategoryId, DbType.Int32);
                     parameters.Add("@make", item.Make, DbType.String);

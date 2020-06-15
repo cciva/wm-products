@@ -24,24 +24,20 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     <li>@Html.ActionLink("Products", "Browse", "Products")</li>
                     <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
                 </ul>
             </div>
         </div>
     </div>
     <div class="container body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>@*&copy; @DateTime.Now.Year - Simple shop application by Oliver Civić*@</p>
-        </footer>
-    </div>
 
-    @*@Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)*@
+        <div class="footer-container">
+            <footer>
+                <p>&copy; @DateTime.Now.Year - Computer shop by Oliver Civić</p>
+            </footer>
+        </div>
+    </div>
 </body>
 </html>

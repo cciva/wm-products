@@ -1,57 +1,35 @@
 ﻿@model IEnumerable<Shop.Library.Model.Product>
 
-<h2>All prodcuts</h2>
-
+<h2>Products</h2>
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $(".delete-product").bind("click", function (e) {
+        $(".delete-product").on('click', function (e) {
             e.preventDefault();
-            var productId = $(this).attr("product-id");
+            var url = '@Url.Action("Delete", "Products")';
             var elem = $(this);
-
-            $('#confirm').modal({
-                backdrop: 'static',
-                keyboard: false
-            }).on('click', '#delete', function (e) {
-                deleteProduct(elem, productId);
-            });
-
-            $("#cancel").on('click', function (e) {
-                e.preventDefault();
-                $('#confirm').modal.model('hide');
-            });
+            var productId = $(this).attr("product-id");
+            $.post(url, { id: productId })
+                .done(function (response) {
+                    if (response.Success) {
+                        elem.closest('tr').remove();
+                    } else {
+                        alert("error while trying to delete record");
+                    }
+                }).fail(function (response) {
+                    alert("error while trying to delete record");
+                });
         });
     });
-
-    function deleteProduct(elem, id) {
-        var url = '@Url.Action("Delete", "Products")';
-        $.post(url, { id: id })
-            .done(function (response) {
-                if (response.Success) {
-                    elem.closest('tr').remove();
-                } else {
-                    alert("error while trying to delete record");
-                }
-            }).fail(function (response) {
-                alert("error while trying to delete record");
-            });
-    }
 </script>
 
-<div id="confirm" class="modal" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <p>Delete this record?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete</button>
-                <button type="button" data-dismiss="modal" class="btn">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
+<p>
+    <button type="button"
+            class="btn btn-default btn-sm btn-success"
+            onclick="location.href='@Url.Action("New", "Products")'">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New product
+    </button>
+</p>
 
 <table class="table">
     <tr>
@@ -92,8 +70,11 @@
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.Id })
-                <button class="btn btn-xs pull-right btn-danger delete-product" product-id="@item.Id">
+                <button class="btn btn-xs" onclick="location.href='@Url.Action("Edit", "Products", new { id = item.Id })'">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </button>
+
+                <button class="btn btn-xs btn-danger delete-product" product-id="@item.Id">
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
             </td>
@@ -102,6 +83,6 @@
 
 </table>
 
-<p>
+@*<p>
     @Html.ActionLink("Add new", "New", "Products")
-</p>
+</p>*@

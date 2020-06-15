@@ -23,7 +23,7 @@ namespace Shop.Library.Repository
             _conn = SqlCache.ConnParams[_connId];
         }
 
-        public IEnumerable<T> Load<T>(object filter = null) where T : class, new()
+        public IEnumerable<T> Load<T>(Predicate<T> filter = null) where T : class, new()
         {
             SqlConnection connection = new SqlConnection(_conn);
             IEnumerable<T> collection = Enumerable.Empty<T>();
@@ -50,9 +50,9 @@ namespace Shop.Library.Repository
             return collection;
         }
 
-        public Status Delete<T>(T obj) where T : class, new()
+        public Status Delete<T>(T obj, Predicate<T> where = null) where T : class, new()
         {
-            return this.Write<T>(obj, Operation.Delete);
+            return this.Write<T>(obj, Operation.Delete, where);
         }
 
         public Status Insert<T>(T obj) where T : class, new()
@@ -60,12 +60,19 @@ namespace Shop.Library.Repository
             return this.Write<T>(obj, Operation.Insert);
         }
 
-        public Status Update<T>(T obj) where T : class, new()
+        public Status Update<T>(T obj, Predicate<T> where = null) where T : class, new()
         {
-            return this.Write<T>(obj, Operation.Update);
+            return this.Write<T>(obj, Operation.Update, where);
         }
 
-        private Status Write<T>(T obj, Operation op) where T : class, new()
+        public DbResult Execute<T>(Operation op, IDictionary<string, object> args = null)
+            where T : class, new()
+        {
+            // TBD
+            return new DbResult(null, Status.Ok);
+        }
+
+        private Status Write<T>(T obj, Operation op, Predicate<T> where = null) where T : class, new()
         {
             SqlConnection connection = new SqlConnection(_conn);
             Status status = Status.Ok;

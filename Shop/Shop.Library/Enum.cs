@@ -9,6 +9,8 @@ namespace Shop.Library
     {
         Insert,
         Update,
-        Delete
+        Delete,
+        Count,
+        Exists
     }
 }
